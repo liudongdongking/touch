@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>带存储功能的文本生成器</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f2f5;
+            margin: 20px;
+        }
+
+        #container {
+            width: 300px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* 动态生成的段落样式 */
+        p {
+            color: #333;
+            padding: 8px;
+            border-left: 3px solid #007bff;
+            background: #f8f9fa;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>点击按钮生成永久保存的段落</h2>
+    <button onclick="addText()">生成新段落</button>
+    <div id="container"></div>
+
+    <script>
+        // =====================
+        // 新增本地存储功能说明
+        // =====================
+        // 核心逻辑：
+        // 1. 使用 localStorage 存储数据
+        // 2. 页面加载时从存储加载历史记录
+        // 3. 每次新增段落时更新存储
+
+        // 初始化：页面加载时自动加载历史记录
+        window.onload = loadSavedParagraphs;
+
+        // 从 localStorage 加载已保存的段落
+        function loadSavedParagraphs() {
+            // 从本地存储获取数据（如果没有则返回空数组）
+            const savedData = JSON.parse(localStorage.getItem('paragraphs')) || [];
+            
+            savedData.forEach(item => {
+                createParagraphElement(item.id, item.content);
+            });
+        }
+
+        // 创建段落元素并添加到页面
+        function createParagraphElement(id, content) {
+            const text = document.createElement("p");
+            text.id = id;
+            text.textContent = content;
+            document.getElementById("container").appendChild(text);
+        }
+
+        // 生成并保存新段落
+        function addText() {
+            // 生成唯一ID和时间戳文本
+            const newId = "para-" + Date.now();
+            const newContent = "永久保存的文本 (" + new Date().toLocaleString() + ")";
+            
+            // 创建段落元素
+            createParagraphElement(newId, newContent);
+            
+            // =====================
+            // 新增存储逻辑
+            // =====================
+            // 1. 获取现有存储数据（如果没有则初始化空数组）
+            const savedData = JSON.parse(localStorage.getItem('paragraphs')) || [];
+            
+            // 2. 添加新段落数据
+            savedData.push({
+                id: newId,
+                content: newContent
+            });
+            
+            // 3. 保存更新后的数据
+            localStorage.setItem('paragraphs', JSON.stringify(savedData));
+            
+            // 滚动到最新内容
+            document.getElementById(newId).scrollIntoView({ behavior: "smooth" });
+        }
+    </script>
+</body>
+</html>
